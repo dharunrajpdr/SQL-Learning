@@ -16,23 +16,36 @@ CREATE TABLE table_name (
     column2 datatype,
     column3 datatype
 );
+```
 
-🗃️ Example
+---
 
-Imagine we have a CollegeDB database and want to store student information.
+## 🗃️ Example
 
-Create a table to store student details.
+Imagine we have a `CollegeDB` database and want to store student information.
 
-⭐ SQL Query
+> **Create a table to store student details.**
+
+### ⭐ SQL Query
+
+```sql
 CREATE TABLE Students (
     id INT,
     name VARCHAR(50),
     age INT
 );
+```
 
-This creates a Students table with three columns:
+This creates a `Students` table with three columns:
 
-Column	Data Type
-id	INT
-name	VARCHAR(50)
-age	INT
+| Column | Data Type |
+|--------|-----------|
+| `id` | `INT` |
+| `name` | `VARCHAR(50)` |
+| `age` | `INT` |
+
+---
+
+## ⭐ Key Point
+
+> **`CREATE TABLE` is used to create a new table with columns and their data types.**
