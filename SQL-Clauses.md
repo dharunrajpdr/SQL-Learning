@@ -1,6 +1,6 @@
-# 📘 SQL Clauses – GROUP BY, ORDER BY, LIMIT & OFFSET
+# 📘 SQL Clauses – GROUP BY, HAVING, ORDER BY, LIMIT & OFFSET
 
-> 💡 **In this lesson:** Learn how to group, sort, limit, and skip SQL query results.
+> 💡 **In this lesson:** Learn how to group, filter groups, sort, limit, and skip SQL query results.
 
 ---
 
@@ -91,7 +91,144 @@ GROUP BY department;
 
 ---
 
-# 2️⃣ ORDER BY
+# 2️⃣ HAVING
+
+## 🧠 What is HAVING?
+
+`HAVING` is used to **filter groups after `GROUP BY`**.
+
+👉 `WHERE` filters **individual rows**.
+
+👉 `HAVING` filters **groups**.
+
+### 💡 Easy Memory Trick
+
+```text
+WHERE  → Filter rows
+HAVING → Filter groups
+```
+
+---
+
+## 📌 Syntax
+
+```sql
+SELECT column_name, aggregate_function(column_name)
+FROM table_name
+GROUP BY column_name
+HAVING condition;
+```
+
+---
+
+## 🔹 Example 1: Departments with More Than 1 Employee
+
+```sql
+SELECT department, COUNT(*) AS employee_count
+FROM employees
+GROUP BY department
+HAVING COUNT(*) > 1;
+```
+
+### 📤 Output
+
+| department | employee_count |
+|------------|---------------:|
+| IT | 2 |
+| HR | 2 |
+
+`Sales` is not included because it has only 1 employee.
+
+---
+
+## 🔹 Example 2: Departments with Average Salary Greater Than 40000
+
+```sql
+SELECT department, AVG(salary) AS average_salary
+FROM employees
+GROUP BY department
+HAVING AVG(salary) > 40000;
+```
+
+### 📤 Output
+
+| department | average_salary |
+|------------|---------------:|
+| IT | 45000 |
+| Sales | 45000 |
+
+---
+
+## 🔹 Example 3: GROUP BY + WHERE + HAVING
+
+We can use both `WHERE` and `HAVING`.
+
+```sql
+SELECT department, AVG(salary) AS average_salary
+FROM employees
+WHERE salary > 30000
+GROUP BY department
+HAVING AVG(salary) > 40000;
+```
+
+### 🧠 Query Flow
+
+```text
+WHERE
+  ↓
+Filter individual rows
+  ↓
+GROUP BY
+  ↓
+Create groups
+  ↓
+AVG()
+  ↓
+Calculate average
+  ↓
+HAVING
+  ↓
+Filter groups
+```
+
+---
+
+# 3️⃣ WHERE vs HAVING ⭐
+
+| WHERE | HAVING |
+|-------|--------|
+| Filters rows | Filters groups |
+| Applied before `GROUP BY` | Applied after `GROUP BY` |
+| Usually used for individual row conditions | Usually used with aggregate conditions |
+| Cannot normally use aggregate functions directly | Commonly used with aggregate functions |
+
+### Example
+
+```sql
+-- WHERE → Filter rows
+SELECT *
+FROM employees
+WHERE salary > 40000;
+```
+
+```sql
+-- HAVING → Filter groups
+SELECT department, AVG(salary)
+FROM employees
+GROUP BY department
+HAVING AVG(salary) > 40000;
+```
+
+### 🧠 Remember
+
+```text
+WHERE  → Before GROUP BY
+HAVING → After GROUP BY
+```
+
+---
+
+# 4️⃣ ORDER BY
 
 ## 🧠 What is ORDER BY?
 
@@ -127,18 +264,8 @@ ORDER BY salary ASC;
 | name | salary |
 |------|-------:|
 | Ravi | 30000 |
-| Arun | 40000 |
 | Priya | 35000 |
-| Anu | 45000 |
-| Kiran | 50000 |
-
-### ⬆️ Correct Ascending Order
-
-| name | salary |
-|------|-------:|
-| Ravi | 30000 |
 | Arun | 40000 |
-| Priya | 35000 |
 | Anu | 45000 |
 | Kiran | 50000 |
 
@@ -185,7 +312,7 @@ ORDER BY department ASC, salary DESC;
 
 ---
 
-# 3️⃣ LIMIT
+# 5️⃣ LIMIT
 
 ## 🧠 What is LIMIT?
 
@@ -215,8 +342,6 @@ LIMIT 3;
 
 ## 🔹 Example: Get Top 3 Highest Salaries
 
-Usually, `LIMIT` is combined with `ORDER BY`.
-
 ```sql
 SELECT name, salary
 FROM employees
@@ -244,7 +369,7 @@ LIMIT    → Decides how many rows to take
 
 ---
 
-# 4️⃣ OFFSET
+# 6️⃣ OFFSET
 
 ## 🧠 What is OFFSET?
 
@@ -266,6 +391,7 @@ OFFSET number;
 ```sql
 SELECT *
 FROM employees
+ORDER BY id
 LIMIT 2 OFFSET 2;
 ```
 
@@ -281,7 +407,7 @@ LIMIT 2
 Take next 2 rows
 ```
 
-### 📤 Example Output
+### 📤 Output
 
 | id | name |
 |---:|------|
@@ -294,7 +420,7 @@ Take next 2 rows
 
 ---
 
-# 5️⃣ LIMIT + OFFSET
+# 7️⃣ LIMIT + OFFSET
 
 ## 📄 Pagination
 
@@ -309,6 +435,7 @@ For example, suppose we display **2 employees per page**.
 ```sql
 SELECT *
 FROM employees
+ORDER BY id
 LIMIT 2 OFFSET 0;
 ```
 
@@ -323,6 +450,7 @@ Rows → 1, 2
 ```sql
 SELECT *
 FROM employees
+ORDER BY id
 LIMIT 2 OFFSET 2;
 ```
 
@@ -337,6 +465,7 @@ Rows → 3, 4
 ```sql
 SELECT *
 FROM employees
+ORDER BY id
 LIMIT 2 OFFSET 4;
 ```
 
@@ -379,12 +508,58 @@ Query:
 ```sql
 SELECT *
 FROM employees
+ORDER BY id
 LIMIT 2 OFFSET 4;
 ```
 
 ---
 
-# 6️⃣ GROUP BY + ORDER BY
+# 8️⃣ GROUP BY + HAVING + ORDER BY
+
+We can combine all three.
+
+## 🔹 Example
+
+Find departments having more than 1 employee and sort them by employee count.
+
+```sql
+SELECT department, COUNT(*) AS employee_count
+FROM employees
+GROUP BY department
+HAVING COUNT(*) > 1
+ORDER BY employee_count DESC;
+```
+
+### 📤 Output
+
+| department | employee_count |
+|------------|---------------:|
+| IT | 2 |
+| HR | 2 |
+
+### 🔄 Query Flow
+
+```text
+GROUP BY
+   ↓
+Create department groups
+   ↓
+COUNT()
+   ↓
+Count employees
+   ↓
+HAVING
+   ↓
+Keep groups with count > 1
+   ↓
+ORDER BY
+   ↓
+Sort the remaining groups
+```
+
+---
+
+# 9️⃣ GROUP BY + ORDER BY
 
 We can combine `GROUP BY` and `ORDER BY`.
 
@@ -407,32 +582,17 @@ ORDER BY employee_count DESC;
 | HR | 2 |
 | Sales | 1 |
 
-### 🔄 Query Flow
-
-```text
-GROUP BY
-   ↓
-Create department groups
-   ↓
-COUNT()
-   ↓
-Count employees in each group
-   ↓
-ORDER BY DESC
-   ↓
-Sort by employee count
-```
-
 ---
 
-# 7️⃣ GROUP BY + ORDER BY + LIMIT
+# 🔟 GROUP BY + HAVING + ORDER BY + LIMIT
 
-We can find the department with the highest number of employees.
+We can find the department with the highest number of employees among departments having more than 1 employee.
 
 ```sql
 SELECT department, COUNT(*) AS employee_count
 FROM employees
 GROUP BY department
+HAVING COUNT(*) > 1
 ORDER BY employee_count DESC
 LIMIT 1;
 ```
@@ -443,23 +603,27 @@ LIMIT 1;
 GROUP BY
    ↓
 Create department groups
-   ↓
+
 COUNT()
    ↓
 Count employees
+
+HAVING
    ↓
-ORDER BY DESC
+Filter groups
+
+ORDER BY
    ↓
-Highest count first
-   ↓
-LIMIT 1
+Sort groups
+
+LIMIT
    ↓
 Take the first result
 ```
 
 ---
 
-# 8️⃣ ORDER BY + LIMIT + OFFSET
+# 1️⃣1️⃣ ORDER BY + LIMIT + OFFSET
 
 These three are very useful together.
 
@@ -499,11 +663,69 @@ Take next 2 employees
 
 ---
 
+# 1️⃣2️⃣ SQL Query Execution Order ⭐⭐⭐
+
+This is very important for interviews.
+
+Although we write SQL like this:
+
+```sql
+SELECT department, COUNT(*) AS total
+FROM employees
+WHERE salary > 30000
+GROUP BY department
+HAVING COUNT(*) > 1
+ORDER BY total DESC
+LIMIT 2;
+```
+
+The logical processing order is approximately:
+
+```text
+1️⃣ FROM
+      ↓
+2️⃣ WHERE
+      ↓
+3️⃣ GROUP BY
+      ↓
+4️⃣ HAVING
+      ↓
+5️⃣ SELECT
+      ↓
+6️⃣ ORDER BY
+      ↓
+7️⃣ LIMIT
+```
+
+### 🧠 Easy Memory
+
+```text
+FROM
+ ↓
+WHERE
+ ↓
+GROUP BY
+ ↓
+HAVING
+ ↓
+SELECT
+ ↓
+ORDER BY
+ ↓
+LIMIT
+```
+
+> ⭐ **Interview Tip:**  
+> `WHERE` filters rows before grouping, while `HAVING` filters groups after grouping.
+
+---
+
 # 🧠 Quick Revision
 
 | Clause | Meaning | Easy Word |
 |--------|---------|-----------|
 | `GROUP BY` | Groups similar rows | 🧩 GROUP |
+| `HAVING` | Filters groups | 🔍 FILTER |
 | `ORDER BY` | Sorts the result | 🔃 SORT |
 | `LIMIT` | Restricts rows | 🎯 TAKE |
 | `OFFSET` | Skips rows | ⏭️ SKIP |
@@ -512,6 +734,7 @@ Take next 2 employees
 
 ```text
 GROUP BY → GROUP 🧩
+HAVING   → FILTER 🔍
 ORDER BY → SORT 🔃
 LIMIT    → TAKE 🎯
 OFFSET   → SKIP ⏭️
@@ -519,63 +742,68 @@ OFFSET   → SKIP ⏭️
 
 ---
 
-# 🚀 One Important Combined Query
-
-```sql
-SELECT department, COUNT(*) AS total
-FROM employees
-GROUP BY department
-ORDER BY total DESC
-LIMIT 2 OFFSET 1;
-```
-
-### 🧠 Understand it step-by-step
-
-```text
-GROUP BY
-   ↓
-Create department groups
-
-COUNT()
-   ↓
-Count employees in each department
-
-ORDER BY
-   ↓
-Sort departments by count
-
-OFFSET 1
-   ↓
-Skip the first result
-
-LIMIT 2
-   ↓
-Take the next 2 results
-```
-
----
-
 # 🎯 Interview One-Liners
 
 ### GROUP BY
+
 > `GROUP BY` is used to group rows having the same values, usually with aggregate functions.
 
+### HAVING
+
+> `HAVING` is used to filter groups after `GROUP BY`.
+
+### WHERE vs HAVING
+
+> `WHERE` filters individual rows, while `HAVING` filters groups.
+
 ### ORDER BY
+
 > `ORDER BY` is used to sort query results in ascending or descending order.
 
 ### LIMIT
+
 > `LIMIT` restricts the number of rows returned by a query.
 
 ### OFFSET
+
 > `OFFSET` skips a specified number of rows before returning the result.
 
 ---
 
-## ⭐ Final Cheat Sheet
+# 📝 Practice Questions
+
+### Q1.
+Find the number of employees in each department.
+
+### Q2.
+Find departments having more than 2 employees.
+
+### Q3.
+Find departments whose average salary is greater than 40000.
+
+### Q4.
+Find the top 3 highest-paid employees.
+
+### Q5.
+Find the 3rd and 4th highest-paid employees.
+
+### Q6.
+Find the department with the highest number of employees.
+
+### Q7.
+Find the top 2 departments based on average salary.
+
+### Q8.
+Explain the difference between `WHERE` and `HAVING`.
+
+---
+
+# ⭐ Final Cheat Sheet
 
 ```text
 GROUP BY → Group rows
-ORDER BY → Sort rows
+HAVING   → Filter groups
+ORDER BY → Sort rows/results
 LIMIT    → Take rows
 OFFSET   → Skip rows
 ```
@@ -583,10 +811,18 @@ OFFSET   → Skip rows
 ### 🔥 Most Common Patterns
 
 ```sql
--- Count each group
+-- GROUP BY
 SELECT department, COUNT(*)
 FROM employees
 GROUP BY department;
+```
+
+```sql
+-- GROUP BY + HAVING
+SELECT department, COUNT(*) AS total
+FROM employees
+GROUP BY department
+HAVING COUNT(*) > 1;
 ```
 
 ```sql
@@ -601,6 +837,7 @@ LIMIT 3;
 -- Pagination
 SELECT *
 FROM employees
+ORDER BY id
 LIMIT 10 OFFSET 20;
 ```
 
@@ -609,6 +846,15 @@ LIMIT 10 OFFSET 20;
 SELECT department, COUNT(*) AS total
 FROM employees
 GROUP BY department
+HAVING COUNT(*) > 1
 ORDER BY total DESC
 LIMIT 3;
 ```
+
+> 🧠 **Remember:**  
+> **WHERE → Rows**  
+> **GROUP BY → Groups**  
+> **HAVING → Filter Groups**  
+> **ORDER BY → Sort**  
+> **LIMIT → Take**  
+> **OFFSET → Skip**
